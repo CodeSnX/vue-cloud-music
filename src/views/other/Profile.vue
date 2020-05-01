@@ -1,30 +1,19 @@
 <template>
-  <mu-container class="button-wrapper">
-    <mu-text-field
-      v-model="username"
-      label="昵称"
-      label-float
-    ></mu-text-field><br />
-    <mu-text-field
-      v-model="avatar"
-      label="头像链接地址"
-      full-width
-    ></mu-text-field><br />
-    <mu-text-field
-      v-model="password"
-      label="密码"
-      label-float
-    ></mu-text-field><br />
-    <mu-flex
-      justify-content="center"
-      align-items="center"
-    >
-      <mu-button
-        round
-        color="success"
-      >确认修改</mu-button>
-    </mu-flex>
-  </mu-container>
+  <div>
+    <img
+      :src="admin.avatar"
+      @click="changeAvatar()"
+      alt=""
+    />
+    <input
+      type="file"
+      title="更改头像"
+      id="file"
+      @change="uploadAvatar($event)"
+      ref="InputFile"
+      name="files"
+    />
+  </div>
 </template>
 
 <script>
@@ -32,23 +21,56 @@ export default {
   name: 'Profile',
   data() {
     return {
-      username: '',
-      password: '',
+      admin: JSON.parse(localStorage.getItem('admin')),
       avatar: ''
     }
   },
+  components: {},
   created() {},
-  methods: {}
+  mounted() {},
+  methods: {
+    changeAvatar() {
+      this.$refs.file.click()
+    },
+    // 更改头像的方法
+    uploadAvatar(event) {
+      const OSS = require('ali-oss')
+      let client = new OSS({
+        region: 'oss-cn-shanghai',
+        accessKeyId: 'LTAI4FpzLFy8uA2PWAXH8cwQ',
+        accessKeySecret: 'XLTomRADcglUJ5IgRrHxWKJMjPqg8b',
+        bucket: 'blog-manage'
+      })
+      let timestamp = Date.parse(new Date())
+      let imgUrl = 'img/' + timestamp
+      var file = event.target.files[0] //获取文件流
+      var _this = this
+      client.multipartUpload(imgUrl, file).then(function(result) {
+        _this.avatar = result.res.requestUrls[0]
+        _this.updateAdminAvatar(_this.avatar)
+      })
+    },
+    //更换头像
+    updateAdminAvatar(url) {
+      console.log('头像地址：' + url)
+      this.axios({
+        method: 'put',
+        url: 'http://localhost:8023/sysAdmin/update',
+        data: {
+          avatar: url
+        }
+      }).then((res) => {
+        if (res.data.code == 1) {
+          this.user.avatar = url
+          this.$store.commit('setUser', this.user)
+          localStorage.removeItem('user')
+          localStorage.setItem('user', this.user)
+        }
+      })
+    }
+  },
+  computed: {}
 }
 </script>
-<style lang="scss">
-.button-wrapper {
-  .mu-button {
-    margin: 8px;
-    vertical-align: middle;
-  }
-  a.mu-button {
-    text-decoration: none;
-  }
-}
-</style>
+
+<style lang="scss"></style>
