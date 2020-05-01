@@ -22,21 +22,25 @@
           :rules="passwordRules"
         >
           <mu-text-field
-            type="password"
             v-model="validateForm.password"
             prop="password"
           ></mu-text-field>
         </mu-form-item>
-        <div class="verify-wrapper">
-          <mu-form-item label="验证码">
-            <mu-text-field v-model="verifyCode"></mu-text-field>
-          </mu-form-item>
-          <img
-            class="verify"
-            @click.prevent="refresh"
-            ref="codeImg"
-          />
-        </div>
+        <mu-auto-complete
+          label="提示输入内容"
+          v-model="verifyCode"
+        ></mu-auto-complete>
+        <mu-button
+          color="info"
+          @click="refresh()"
+          v-if="vailiable"
+        >获取验证码</mu-button>
+        <img
+          ref="image"
+          alt=""
+          v-if="!vailiable"
+          @click="refresh()"
+        />
         <mu-form-item
           prop="isAgree"
           :rules="argeeRules"
@@ -46,16 +50,22 @@
             v-model="validateForm.isAgree"
           ></mu-checkbox>
         </mu-form-item>
-        <mu-form-item style="padding-left:80px;">
+        <mu-form-item>
           <mu-button
             color="primary"
             @click="submit"
           >提交</mu-button>
           <mu-button @click="clear">重置</mu-button>
         </mu-form-item>
-        <!-- <mu-button @click="login()">github</mu-button> -->
-        <a href="https://github.com/login/oauth/authorize?client_id=d018e29a85862a55579f&redirect_uri=http://localhost:8022/login/oauth2/code/github&scope=user&state=">点击</a>
+        <a href="https://github.com/login/oauth/authorize?client_id=d018e29a85862a55579f&redirect_uri=http://localhost:8022/login/oauth2/code/github&scope=user&state=">GitHub</a>
       </mu-form>
+      <mu-dialog
+        title="Dialog"
+        width="360"
+        :open.sync="openSimple"
+      >
+        登录成功
+      </mu-dialog>
     </mu-container>
     <!--遮罩-->
     <div
@@ -95,13 +105,14 @@ export default {
       ],
       argeeRules: [{ validate: (val) => !!val, message: '必须同意用户协议' }],
       validateForm: {
-        username: 'wususu',
-        password: '123456',
+        username: '',
+        password: '',
         isAgree: false
       },
       verifyCode: '',
       menuList: [],
       show: false,
+      vailiable: true,
       roles: []
     }
   },
@@ -116,13 +127,6 @@ export default {
   },
   mounted() {},
   methods: {
-    // login() {
-    //   // alert('click')
-    //   const authorize_uri = 'https://github.com/login/oauth/authorize'
-    //   const client_id = 'd018e29a85862a55579f'
-    //   const redirect_uri = 'http://localhost:8022/login/oauth2/code/github'
-    //   window.location.href == `${authorize_uri}?client_id=${client_id}&redirect_uri=${redirect_uri}`
-    // },
     submit() {
       //表单验证通过
       this.$refs.form.validate().then((result) => {
@@ -172,14 +176,22 @@ export default {
       })
     },
     refresh() {
-      //点击验证码图片，重新请求，刷新
-      this.axios
-        .get(this.GLOBAL.baseUrl + '/captcha?name=' + this.validateForm.username, { responseType: 'blob' })
-        .then((res) => {
-          let img = this.$refs.codeImg
-          let url = window.URL.createObjectURL(res.data)
-          img.src = url
-        })
+      this.vailiable = false
+      this.axios({
+        method: 'get',
+        url: this.GLOBAL.baseUrl + '/captcha',
+        // 2、将请求数据转换为form-data格式
+        params: {
+          name: this.validateForm.username
+        },
+        // 3、设置请求头Content-Type
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        responseType: 'blob'
+      }).then((res) => {
+        let img = this.$refs.image
+        let url = window.URL.createObjectURL(res.data)
+        img.src = url
+      })
     },
     clear() {
       this.$refs.form.clear()
@@ -213,24 +225,7 @@ export default {
   margin-left: 300px;
   background-color: #fff;
   border-radius: 10px;
-  padding-top: 20px;
-  .mu-form-item {
-    width: 80%;
-    margin: 0 auto;
-  }
-  .verify-wrapper {
-    width: 80%;
-    margin: 0 auto;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-around;
-    .mu-text-field {
-      flex: 0 0 75%;
-    }
-    .verify {
-      flex: 0 0 20%;
-    }
-  }
+  padding: 10px;
 }
 .mask {
   z-index: 900;
