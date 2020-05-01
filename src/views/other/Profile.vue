@@ -37,9 +37,7 @@ export default {
       avatar: ''
     }
   },
-  created() {
-    this.$store.commit('setAdmin', JSON.parse(localStorage.getItem('admin')))
-  },
+  created() {},
   methods: {}
 }
 </script>
