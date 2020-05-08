@@ -1,20 +1,12 @@
 <template>
   <v-container class="animated fadeIn move ml-6 mr-6">
     <v-card class="bottom-gradient">
-      <v-toolbar
-        flat
-        color="blue-grey"
-        dark
-      >
+      <v-toolbar flat color="blue-grey" dark>
         <v-toolbar-title>Cloud Music</v-toolbar-title>
       </v-toolbar>
 
       <v-card-text>
-        <v-text-field
-          filled
-          label="Title"
-          value="My new post"
-        ></v-text-field>
+        <v-text-field filled label="Title" value="My new post"></v-text-field>
 
         <v-textarea
           filled
@@ -26,16 +18,8 @@
 
         <v-item-group multiple>
           <v-subheader>Tags</v-subheader>
-          <v-item
-            v-for="n in 8"
-            :key="n"
-            v-slot:default="{ active, toggle }"
-          >
-            <v-chip
-              active-class="purple--text"
-              :input-value="active"
-              @click="toggle"
-            > Tag {{ n }} </v-chip>
+          <v-item v-for="n in 8" :key="n" v-slot:default="{ active, toggle }">
+            <v-chip active-class="purple--text" :input-value="active" @click="toggle"> Tag {{ n }} </v-chip>
           </v-item>
         </v-item-group>
       </v-card-text>

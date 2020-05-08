@@ -1,5 +1,5 @@
 <template>
-  <div class="bg">
+  <v-app class="bg">
     <mu-container>
       <mu-form
         ref="form"
@@ -32,14 +32,14 @@
         ></mu-auto-complete>
         <mu-button
           color="info"
-          @click="refresh()"
+          @click="refresh"
           v-if="vailiable"
         >获取验证码</mu-button>
         <img
           ref="image"
           alt=""
           v-if="!vailiable"
-          @click="refresh()"
+          @click="refresh"
         />
         <mu-form-item
           prop="isAgree"
@@ -56,8 +56,13 @@
             @click="submit"
           >提交</mu-button>
           <mu-button @click="clear">重置</mu-button>
+          <mu-button
+            color="purple"
+            @click="gitHub"
+          >
+            GitHub
+          </mu-button>
         </mu-form-item>
-        <a href="https://github.com/login/oauth/authorize?client_id=d018e29a85862a55579f&redirect_uri=http://localhost:8022/login/oauth2/code/github&scope=user&state=">GitHub</a>
       </mu-form>
       <mu-dialog
         title="Dialog"
@@ -87,7 +92,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </v-app>
 </template>
 
 <script>
@@ -128,10 +133,8 @@ export default {
   mounted() {},
   methods: {
     submit() {
-      //表单验证通过
       this.$refs.form.validate().then((result) => {
         console.log('form valid: ', result)
-        //表单验证通过后才显示验证码
         this.axios({
           method: 'post',
           url: this.GLOBAL.baseUrl + '/sysAdmin/login',
@@ -141,23 +144,22 @@ export default {
             verifyCode: this.verifyCode
           }
         }).then((res) => {
-          //登录成功
           if (res.data.code === 1) {
             //存token
             localStorage.setItem('token', res.data.data.token)
             this.$store.commit('setToken', res.data.data.token)
-            let admin = {
-              id: res.data.data.admin.id,
-              name: res.data.data.admin.name,
-              avatar: res.data.data.admin.avatar
-            }
-            localStorage.setItem('admin', JSON.stringify(admin))
-            this.$store.commit('setAdmin', JSON.stringify(admin))
+            //存admin信息
+            localStorage.setItem('id', res.data.data.admin.id)
+            localStorage.setItem('name', res.data.data.admin.name)
+            localStorage.setItem('avatar', res.data.data.admin.avatar)
+            this.$store.commit('setName', res.data.data.admin.name)
+            this.$store.commit('setAvatar', res.data.data.admin.avatar)
             this.roles = res.data.data.admin.roles
             //角色数量超过1个
             if (this.roles.length > 1) {
               //弹出遮罩层选择
-              alert('登录成功，请选择角色')
+              alert('登录成功，你的角色不只一个，请选择')
+              //显示遮罩层，遮罩层按钮具体点击事件 gotoDashboard(roleId)
               this.show = true
             } else {
               //只有一个角色
@@ -179,7 +181,7 @@ export default {
       this.vailiable = false
       this.axios({
         method: 'get',
-        url: this.GLOBAL.baseUrl + '/captcha',
+        url: 'http://localhost:8023/captcha',
         // 2、将请求数据转换为form-data格式
         params: {
           name: this.validateForm.username
@@ -202,9 +204,15 @@ export default {
       }
     },
     gotoIndex(roleId) {
-      //将roleId存入全局
+      //将roleId存入本地存储
       localStorage.setItem('roleId', roleId)
       this.$router.push('/')
+    },
+    gitHub() {
+      const authorize_uri = 'https://github.com/login/oauth/authorize'
+      const client_id = 'd018e29a85862a55579f'
+      const redirect_uri = 'http://localhost:8023/oauth2/code/github'
+      window.location.href = `${authorize_uri}?client_id=${client_id}&redirect_uri=${redirect_uri}`
     }
   }
 }
@@ -212,7 +220,7 @@ export default {
 
 <style scoped lang="scss">
 .bg {
-  background-image: url('../../assets/24.jpg');
+  background-image: url('../../assets/images/24.jpg');
   background-size: 100% 100%;
   opacity: 0.8;
   height: 100vh;
@@ -226,6 +234,7 @@ export default {
   background-color: #fff;
   border-radius: 10px;
   padding: 10px;
+  margin-top: 150px;
 }
 .mask {
   z-index: 900;
