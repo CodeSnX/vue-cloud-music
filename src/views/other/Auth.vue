@@ -1,27 +1,26 @@
 <template>
   <v-app>
     <v-app-bar
-      color="cyan"
-      src="../../assets/images/20.jpg"
-      dense
+      absolute
+      color="#6A76AB"
       dark
-      height="80"
-      app
+      shrink-on-scroll
+      prominent
+      src="../../assets/images/20.jpg"
+      fade-img-on-scroll
+      scroll-target="#scrolling-techniques-5"
+      height="50px"
     >
-      <v-app-bar-nav-icon @click="$router.push('/')"></v-app-bar-nav-icon>
-      <v-toolbar-title>GitHub个人信息</v-toolbar-title>
+      <v-app-bar-nav-icon>
+        <v-img
+          src="../../assets/images/GitHub.png"
+          width="10px"
+        ></v-img>
+      </v-app-bar-nav-icon>
+
+      <v-toolbar-title>GitHub信息</v-toolbar-title>
 
       <v-spacer></v-spacer>
-
-      <v-btn icon>
-        <router-link to="this.html_url"></router-link>
-        <v-icon color="red">mdi-heart</v-icon>
-      </v-btn>
-
-      <v-btn icon>
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-
       <v-menu
         left
         bottom
@@ -31,77 +30,37 @@
             icon
             v-on="on"
           >
-            <v-icon>mdi-dots-vertical</v-icon>
+            <v-avatar>
+              <v-img :src="user.avatar_url"></v-img>
+            </v-avatar>
           </v-btn>
         </template>
 
         <v-list>
-          <v-list-item link>
-            <v-list-item-title>设置</v-list-item-title>
+          <v-list-item
+            link
+            @click="$router.push('/')"
+          >
+            <v-list-item-title>确认登录</v-list-item-title>
           </v-list-item>
           <v-list-item link>
             <v-list-item-title @click="logout">退出</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
+
+      <template v-slot:extension>
+        <v-tabs align-with-title>
+          <v-tab to="/home">个人主页</v-tab>
+          <v-tab to="/following">关注</v-tab>
+          <v-tab to="/followers">粉丝</v-tab>
+          <v-tab to="/repositories">发布</v-tab>
+          <v-tab to="/stars">收藏</v-tab>
+        </v-tabs>
+      </template>
     </v-app-bar>
     <v-content>
-      <v-container>
-        <v-row justify="center">
-          <v-col
-            cols="12"
-            md="6"
-          >
-            <v-list>
-              <v-list-item>
-                <v-btn
-                  class="ma-2"
-                  :loading="loading"
-                  :disabled="loading"
-                  color="secondary"
-                  @click="loader = 'loading'"
-                >
-                  粉丝:{{ user.followers }}
-                </v-btn>
-              </v-list-item>
-              <v-list-item>
-                <v-btn
-                  :loading="loading3"
-                  :disabled="loading3"
-                  color="blue-grey"
-                  class="ma-2 white--text"
-                  @click="loader = 'loading3'"
-                >关注:{{ user.following }}
-                </v-btn>
-              </v-list-item>
-              <v-list-item>
-                <v-btn
-                  class="ma-2"
-                  :loading="loading2"
-                  :disabled="loading2"
-                  color="success"
-                  @click="loader = 'loading2'"
-                >
-                  已发布:{{ user.public_repos }}
-                </v-btn>
-              </v-list-item>
-            </v-list>
-          </v-col>
-          <v-col
-            cols="12"
-            md="4"
-          >
-            <v-card>
-              <v-card-title>
-                <v-img :src="user.avatar_url"></v-img>
-              </v-card-title>
-              <v-card-text>
-                <p>用户名：{{ user.name }}</p>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
+      <router-view> </router-view>
     </v-content>
   </v-app>
 </template>
@@ -122,7 +81,6 @@ export default {
     if (user) {
       console.log(user)
       this.user = JSON.parse(user)
-      this.html_url = JSON.parse(user.html_url)
       localStorage.setItem('token', this.user.id)
       localStorage.setItem('user', user)
     }

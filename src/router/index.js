@@ -4,6 +4,8 @@ import VueRouter from 'vue-router'
 import goTo from 'vuetify/es5/services/goto'
 import Layout from '../views/index/Layout.vue'
 import Dashboard from '../views/index/Dashboard.vue'
+import Auth from '../views/other/Auth.vue'
+import Home from '../views/github/Home.vue'
 
 Vue.use(VueRouter)
 
@@ -64,7 +66,34 @@ const routes = [
   {
     path: '/auth',
     name: 'Auth',
-    component: () => import('../views/other/Auth.vue')
+    component: Auth,
+    children: [
+      {
+        path: '/home',
+        name: 'Home',
+        component: Home
+      },
+      {
+        path: '/following',
+        name: 'Following',
+        component: () => import('../views/github/Following.vue')
+      },
+      {
+        path: '/followers',
+        name: 'Followers',
+        component: () => import('../views/github/Followers.vue')
+      },
+      {
+        path: '/repositories',
+        name: 'Repositories',
+        component: () => import('../views/github/Repositories.vue')
+      },
+      {
+        path: '/stars',
+        name: 'Stars',
+        component: () => import('../views/github/Stars.vue')
+      }
+    ]
   },
   {
     path: '/login',
